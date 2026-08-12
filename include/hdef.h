@@ -40,7 +40,7 @@
 #define HC_RET_BASE_LOG  0x00000020
 #define HC_RET_BASE_CFG  0x00000030
 #define HC_RET_BASE_TIME 0x00000040
-
+#define HC_RET_BASE_SHM  0x00000050
 
 
 //define for tool 

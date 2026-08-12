@@ -31,7 +31,7 @@ int hbuf_deinit(hbuf_t* b) {
   b->data = NULL;
   return HC_RET_OK;
 }
-static int hbuf_realloc(hbuf_t* b, size_t wish_size) {
+int hbuf_grow(hbuf_t* b, size_t wish_size) {
   HC_RET_WHEN(wish_size <= b->size, HC_RET_OK);
 
   hbuf_t target = *b;
@@ -53,7 +53,7 @@ int hbuf_push(hbuf_t* b, const void* d, size_t dsize) {
   HC_RET_WHEN(!b->size, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(3)));
 
   int r = HC_RET_OK;
-  r = hbuf_realloc(b, b->len + dsize);
+  r = hbuf_grow(b, b->len + dsize);
   HC_RET_WHEN(r, r);
   memcpy(b->data + b->len, d, dsize);
   b->len += dsize;
@@ -74,58 +74,60 @@ int hbuf_print(hbuf_t* b, size_t ofs, size_t size) {
 }
 
 // RQ
-#define HRQ_MIN(A, B) ((A) < (B) ? (A) : (B))
-int hrp_init(hrq_t* rq, uint32_t s) {
-  HC_RET_WHEN(!rq, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!s, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(1)));
-  HC_RET_WHEN(HBUF_DATA_SIZE_MAX < s,
-                 HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(2)));
-
-  rq->size = HBUF_DATA_SIZE_MIN;
-  HC_GETMINPOW(s, rq->size);
-  rq->data = (uint8_t*)HC_ALLOC(rq->size);
-  rq->in = 0;
-  rq->out = 0;
-  return HC_RET_OK;
+size_t hrb_alloc_size(size_t s){
+  size_t size = HBUF_DATA_SIZE_MIN;
+  HC_GETMINPOW(s, size);
+  return sizeof(hrb_t) + size;
 }
-int hrp_deinit(hrq_t* rq) {
-  HC_RET_WHEN(!rq, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!rq->size, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(1)));
-  HC_RET_WHEN(!rq->data, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(2)));
-  HC_FREE(rq->data);
-  rq->data = NULL;
-  rq->in = rq->out = rq->size = 0;
-  return HC_RET_OK;
+hrb_t* hrb_init(size_t s) {
+  size_t size = hrb_alloc_size(s);
+  HC_RET_WHEN(HBUF_DATA_SIZE_MAX < size,NULL);
+  hrb_t* rb = (hrb_t*)HC_ALLOC(size);
+  rb->size = size;
+  rb->in = 0;
+  rb->out = 0;
+  return rb;
 }
-int hrp_push(hrq_t* rq, void* data, uint32_t size) {
-  HC_RET_WHEN(!rq, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!data, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(1)));
-  HC_RET_WHEN(!size, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(2)));
-  HC_RET_WHEN(!rq->size, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(3)));
+void hrb_deinit(hrb_t* rb) {
+  if(rb && rb->size){
+    HC_FREE(rb);
+  }
+}
+size_t hrb_push(hrb_t* rb, void* data, size_t size) {
+  HC_RET_WHEN(!rb, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
+  HC_RET_WHEN(!data, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
+  HC_RET_WHEN(!size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(2)));
+  HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(3)));
 
-  uint32_t len = HRQ_MIN(rq->size - (rq->in - rq->out), size);
-  uint32_t trueIn = rq->in & (rq->size - 1);
-  uint32_t l1 = HRQ_MIN(len, rq->size - trueIn);
-  memcpy(rq->data + trueIn, data, l1);
-  memcpy(rq->data, (char*)data + l1, len - l1);
-  rq->in += len;
+  uint32_t len = HRB_MIN(rb->size - (rb->in - rb->out), size);
+  uint32_t trueIn = rb->in & (rb->size - 1);
+  uint32_t l1 = HRB_MIN(len, rb->size - trueIn);
+  memcpy(rb->data + trueIn, data, l1);
+  memcpy(rb->data, (char*)data + l1, len - l1);
+  rb->in += len;
   return len;
 }
-int hrp_pop(hrq_t* rq, void* data, uint32_t size) {
-  HC_RET_WHEN(!rq, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!data, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(1)));
-  HC_RET_WHEN(!size, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(2)));
-  HC_RET_WHEN(!rq->size, HC_RET(HC_RET_BASE_RQ, HC_RET_PARAM(3)));
-
-  uint32_t len = HRQ_MIN(rq->in - rq->out, size);
-  uint32_t trueOut = rq->out & (rq->size - 1);
-  uint32_t l1 = HRQ_MIN(len, rq->size - trueOut);
-  memcpy(data, rq->data + trueOut, l1);
-  memcpy((char*)data + l1, rq->data, len - l1);
-  rq->out += len;
+size_t hrb_pop(hrb_t* rb, void* data, size_t size) {
+  HC_RET_WHEN(!rb || !data || !size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
+  HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
+  uint32_t len = HRB_MIN(rb->in - rb->out, size);
+  uint32_t trueOut = rb->out & (rb->size - 1);
+  uint32_t l1 = HRB_MIN(len, rb->size - trueOut);
+  memcpy(data, rb->data + trueOut, l1);
+  memcpy((char*)data + l1, rb->data, len - l1);
+  rb->out += len;
   return len;
 }
-
+size_t hrb_peek(hrb_t* rb, void* data, size_t size){
+  HC_RET_WHEN(!rb || !data || !size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
+  HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
+  uint32_t len = HRB_MIN(rb->in - rb->out, size);
+  uint32_t trueOut = rb->out & (rb->size - 1);
+  uint32_t l1 = HRB_MIN(len, rb->size - trueOut);
+  memcpy(data, rb->data + trueOut, l1);
+  memcpy((char*)data + l1, rb->data, len - l1);
+  return len;
+}
 // LIST
 int hlist_clear(hlist_t* l) {
   HC_RET_WHEN(!l, HC_RET(HC_RET_BASE_LIST, HC_RET_PARAM(0)));

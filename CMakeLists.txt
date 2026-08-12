@@ -15,8 +15,8 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 file(GLOB HC_SRCS "src/*.c")
 add_library(hcore SHARED ${HC_SRCS} )
-set(HC_3RD libzlog.a libiniparser.a)
-target_link_libraries(hcore ${HC_3RD})
+set(HC_3RD )
+target_link_libraries(hcore PRIVATE zlog iniparser)
 
 # install
 # file(GLOB HC_INCS "*.h")
