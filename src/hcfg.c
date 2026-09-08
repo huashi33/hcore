@@ -18,7 +18,7 @@ int hcfg_init(hcfg_t* c, const char* filename, uint8_t cfg_type) {
   }
   return HC_RET(HC_RET_BASE_CFG, HC_RET_NOTFOUND);
 }
-int hcfg_deinit(hcfg_t* c) {
+int hcfg_fini(hcfg_t* c) {
   HC_RET_WHEN(!c, HC_RET(HC_RET_BASE_CFG, HC_RET_PARAM(0)));
   dictionary* ini = (dictionary*)c->handle;
   iniparser_freedict(ini);

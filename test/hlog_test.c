@@ -14,7 +14,7 @@ int main(int argc,char *argv[]){
   HLOG_WARN("log from w");
   HLOG_ERROR("log from e");
 
-  r = hlog_deinit(appname);
+  r = hlog_fini(appname);
   HC_RET_WHEN(r, r);
   return 0;
 }

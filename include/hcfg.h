@@ -17,7 +17,7 @@ typedef struct hcfg_{
 
 
 int hcfg_init(hcfg_t* c,const char *filename,uint8_t cfg_type);
-int hcfg_deinit(hcfg_t* c);
+int hcfg_fini(hcfg_t* c);
 int hcfg_str(hcfg_t* c,const char* key,char *val,size_t val_size);
 // int hcfg_int(hcfg_t* c,const char* key,int *val);
 // int hcfg_int64(hcfg_t* c,const char* key,int64_t *val);

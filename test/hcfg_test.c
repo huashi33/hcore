@@ -29,7 +29,7 @@ static int cfg_test(const char* cfgname,const char* key ){
   r = hcfg_str(&c,key,vv,sizeof(vv));
   printf("%s,%s -> %s\n",cfgname,key,vv);
 
-  r = hcfg_deinit(&c);
+  r = hcfg_fini(&c);
   HC_RET_WHEN(r, r);
   return 0;
 

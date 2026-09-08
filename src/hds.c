@@ -94,14 +94,12 @@ void hrb_deinit(hrb_t* rb) {
   }
 }
 size_t hrb_push(hrb_t* rb, void* data, size_t size) {
-  HC_RET_WHEN(!rb, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!data, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
-  HC_RET_WHEN(!size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(2)));
-  HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(3)));
+  HC_RET_WHEN(!rb || !data || !size || !rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
 
-  uint32_t len = HRB_MIN(rb->size - (rb->in - rb->out), size);
-  uint32_t trueIn = rb->in & (rb->size - 1);
-  uint32_t l1 = HRB_MIN(len, rb->size - trueIn);
+
+  size_t len = HRB_MIN(rb->size - (rb->in - rb->out), size);
+  size_t trueIn = rb->in & (rb->size - 1);
+  size_t l1 = HRB_MIN(len, rb->size - trueIn);
   memcpy(rb->data + trueIn, data, l1);
   memcpy(rb->data, (char*)data + l1, len - l1);
   rb->in += len;
@@ -110,9 +108,9 @@ size_t hrb_push(hrb_t* rb, void* data, size_t size) {
 size_t hrb_pop(hrb_t* rb, void* data, size_t size) {
   HC_RET_WHEN(!rb || !data || !size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
   HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
-  uint32_t len = HRB_MIN(rb->in - rb->out, size);
-  uint32_t trueOut = rb->out & (rb->size - 1);
-  uint32_t l1 = HRB_MIN(len, rb->size - trueOut);
+  size_t len = HRB_MIN(rb->in - rb->out, size);
+  size_t trueOut = rb->out & (rb->size - 1);
+  size_t l1 = HRB_MIN(len, rb->size - trueOut);
   memcpy(data, rb->data + trueOut, l1);
   memcpy((char*)data + l1, rb->data, len - l1);
   rb->out += len;
@@ -121,9 +119,9 @@ size_t hrb_pop(hrb_t* rb, void* data, size_t size) {
 size_t hrb_peek(hrb_t* rb, void* data, size_t size){
   HC_RET_WHEN(!rb || !data || !size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(0)));
   HC_RET_WHEN(!rb->size, HC_RET(HC_RET_BASE_RB, HC_RET_PARAM(1)));
-  uint32_t len = HRB_MIN(rb->in - rb->out, size);
-  uint32_t trueOut = rb->out & (rb->size - 1);
-  uint32_t l1 = HRB_MIN(len, rb->size - trueOut);
+  size_t len = HRB_MIN(rb->in - rb->out, size);
+  size_t trueOut = rb->out & (rb->size - 1);
+  size_t l1 = HRB_MIN(len, rb->size - trueOut);
   memcpy(data, rb->data + trueOut, l1);
   memcpy((char*)data + l1, rb->data, len - l1);
   return len;
