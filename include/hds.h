@@ -104,11 +104,11 @@ HFC_EXPORT int hislist_foreach(hlist_t* l, hlist_foreach_t f);
 // int
 #define HIHASH_DEFINE(TK, TV) HHASH_DEFINE(TK, TV)
 #define HIHASH_TYPEDEF(TK, TV) HHASH_TYPEDEF(TK, TV)
-#define HIHASH_INIT(h)
+#define HIHASH_INIT(h) h=NULL
 #define HIHASH_FINI(h) hmfree(h)
 #define HIHASH_SET(h, k, v) hmput(h, k, v)
 #define HIHASH_DEL(h, k) hmdel(h, k)
-#define HIHASH_SIZE(h) hmlen(h)
+#define HIHASH_SIZE(h) (h ? hmlen(h) : 0)
 #define HIHASH_EXIST(h, k) (hmgeti(h, k)) >= 0 ? HC_RET_OK : HC_RET_NOTFOUND
 #define HIHASH_FIND(h, k) hmgeti(h, k)
 #define HIHASH_GETV(h, it) HHASH_GETV(h, it)
