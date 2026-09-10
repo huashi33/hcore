@@ -7,5 +7,12 @@
 #define hatomic_int64_t int64_t
 #define hatomic_uint64_t uint64_t
 
-#define hatomic_add(ptr, val) __atomic_add_fetch(ptr, val, __ATOMIC_RELAXED);
+#define hatomic_inc(v,n) __atomic_fetch_add(v, n, __ATOMIC_RELAXED)
+#define hatomic_dec(v,n) __atomic_fetch_sub(v, n, __ATOMIC_RELAXED)
+#define hatomic_load(v) __atomic_load_n(v, __ATOMIC_ACQUIRE)
+#define hatomic_store(v, x) __atomic_store_n(v, x, __ATOMIC_RELEASE)
+
+
+
+
 #endif // __HATOMIC_H__
