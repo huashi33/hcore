@@ -17,6 +17,7 @@
 
 //NULL == cfg: rotate 5 logs, each less 10mb,level info
 HFC_EXPORT int hlog_init(const char *appname,const char *cfgfilename);
+// auto call zlog_fini when exit
 HFC_EXPORT int hlog_fini(const char *appname);
 
 

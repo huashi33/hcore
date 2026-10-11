@@ -2,8 +2,8 @@
 #define _HSHM_H_
 
 #include "hdef.h"
-#include "hds.h"
-
+// #include "hds.h"
+/*
 
 #define HSHM_INIT_TYPE_ATTACH 0
 #define HSHM_INIT_TYPE_CREATE 1
@@ -29,5 +29,5 @@ int hshm_realloc(hshm_t* shm, size_t new_size);
 
 
 
-
+*/
 #endif

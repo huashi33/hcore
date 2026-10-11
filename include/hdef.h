@@ -4,6 +4,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 // DEF-INTERFACE
 #define HFC_DYNAMICLIB

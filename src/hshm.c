@@ -1,12 +1,14 @@
 #include "hshm.h"
 #include "hdef.h"
 #include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
+// #include <sys/mman.h>
+// #include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+
+/*
 
 int hshm_init(hshm_t* shm, const char* name, size_t size, int init_type){
   HC_RET_WHEN(!shm || !name || !size, HC_RET(HC_RET_BASE_SHM, HC_RET_PARAM(0)));
@@ -59,3 +61,4 @@ int hshm_read(hshm_t* shm, void* data, size_t size){
 int hshm_realloc(hshm_t* shm, size_t new_size){
   return 1;
 }
+*/
