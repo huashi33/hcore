@@ -42,10 +42,7 @@ int hbuf_grow(hbuf_t* b, size_t wish_size) {
   return HC_RET_OK;
 }
 int hbuf_push(hbuf_t* b, const void* d, size_t dsize) {
-  HC_RET_WHEN(!b, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(0)));
-  HC_RET_WHEN(!d, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(1)));
-  HC_RET_WHEN(!dsize, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(2)));
-  HC_RET_WHEN(!b->size, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(3)));
+  HC_RET_WHEN(!b || !d || !dsize || !b->size, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(0)));
 
   int r = HC_RET_OK;
   r = hbuf_grow(b, b->len + dsize);
@@ -55,15 +52,26 @@ int hbuf_push(hbuf_t* b, const void* d, size_t dsize) {
   return HC_RET_OK;
 }
 
+int hbuf_remove(hbuf_t* b, size_t index, size_t dsize){
+ HC_RET_WHEN(!b  || !dsize, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(0)));
+ HC_RET_WHEN(0 != (b->len%dsize), HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(2)));
+ HC_RET_WHEN((index+1)*dsize >b->len, HC_RET(HC_RET_BUF_BASE, HC_RET_NOTFOUND));
+  // hsession_t* s = (hsession_t*)sbuf->data;
+  size_t n = b->len / dsize;
+  memmove(b->data + index*dsize ,b->data + (index+1)*dsize, (n - index - 1)*dsize);
+  b->len -= dsize;
+  return HC_RET_OK;
+}
+
 int hbuf_clear(hbuf_t* b) {
   HC_RET_WHEN(!b, HC_RET(HC_RET_BUF_BASE, HC_RET_PARAM(0)));
   b->len = 0;
   return HC_RET_OK;
 }
 
-int hbuf_print(hbuf_t* b, size_t ofs, size_t size) {
-  for (uint64_t i = ofs; size--; i++) {
-    printf("%02X\t", b->data[i]);
-  }
-  return 0;
-}
+// int hbuf_print(hbuf_t* b, size_t ofs, size_t size) {
+//   for (uint64_t i = ofs; size--; i++) {
+//     printf("%02X\t", b->data[i]);
+//   }
+//   return 0;
+// }

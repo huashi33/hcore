@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(hcore C)
 
 
-set(CMAKE_INSTALL_PREFIX "/home/huashi/code/")
-set(CMAKE_BUILD_TYPE Debug)
+# set(CMAKE_INSTALL_PREFIX "/home/huashi/code/")
+# set(CMAKE_BUILD_TYPE Debug)
 
 
 # 设置第三方库路径
